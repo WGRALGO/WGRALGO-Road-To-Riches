@@ -2,6 +2,14 @@
 
 All notable changes to WGRALGO Road to Riches™: Lease It or Own It or Hoof It are documented here.
 
+## [2.0.0] — 2026-10-01
+
+- Version 2.0.0 (versionCode 200).
+- The APK file is now named `WGRALGO-RoadToRiches-v2.0.0.apk`. All WGRALGO apps now use the same `WGRALGO-<AppName>-v<version>.apk` naming.
+- Works on phones and tablets in portrait and landscape. It rotates with your device, like the other WGRALGO apps.
+- On phones turned sideways, the logo on the start screen is smaller, so the game starts on screen instead of below the logo.
+- No changes to the questions, scoring, privacy, or license.
+
 ## [1.0.0] — 2026-10-01
 
 Initial public release.

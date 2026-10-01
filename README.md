@@ -1,6 +1,7 @@
 # WGRALGO Road to Riches™: Lease It or Own It or Hoof It
 
-**Version: 1.0.0**
+**Version: 2.0.0**  
+**Devices:** phones and tablets, portrait and landscape
 
 A free, fully-offline Android transportation and wealth game from
 **WGRALGO / The Wealth Gap Resolution Algorithm™ Inc.**
@@ -49,14 +50,14 @@ device. See [PRIVACY.md](PRIVACY.md).
 
 ## Install / Sideload
 
-1. Download `WGRALGO-RoadToRiches-v1.0.0.apk` from the
+1. Download `WGRALGO-RoadToRiches-v2.0.0.apk` from the
    [Releases page](../../releases).
 2. On your Android device, allow **Install unknown apps** for your browser or
    file manager.
 3. Open the APK and tap **Install**.
 
 Verify the download with the `.sha256` file attached to the release:
-`sha256sum -c WGRALGO-RoadToRiches-v1.0.0.apk.sha256`
+`sha256sum -c WGRALGO-RoadToRiches-v2.0.0.apk.sha256`
 
 Release signing certificate (`CN=WGRALGO, OU=Road to Riches`), SHA-256 fingerprint:
 
