@@ -1,6 +1,6 @@
 # Privacy
 
-**Road to Riches™: Lease It or Own It or Hoof It — Version 1.0.0**
+**Road to Riches™: Lease It or Own It or Hoof It — Version 2.0.0**
 
 Road to Riches works fully offline.
 
