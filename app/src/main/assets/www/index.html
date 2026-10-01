@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none';">
+<meta name="theme-color" content="#000000">
+<title>Road to Riches: Lease It or Own It or Hoof It</title>
+<!-- Road to Riches™: Lease It or Own It or Hoof It — Android app build.
+     Game: the WGRA website version, wrapped in an app shell.
+     No cookies, no trackers, no outside files, nothing saved on the device. -->
+<style>
+  #wgra-rr {
+    --rr-gold: #d4af37;
+    --rr-gold-soft: #f5e4b3;
+    --rr-gold-bright: #fbe79a;
+    --rr-text: #fdfaf0;
+    --rr-muted: rgba(253,250,240,0.72);
+    --rr-good: #5ad18a;
+    --rr-warn: #f2c14e;
+    --rr-bad: #ff7b7b;
+    --rr-own: #c98500;
+    --rr-rent: #3987e5;
+    width: 100%;
+    box-sizing: border-box;
+    background: radial-gradient(circle at top, #181818 0%, #050505 58%);
+    padding: 56px 16px 70px;
+    color: var(--rr-text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  #wgra-rr {
+    --rr-gold: #d4af37;
+    --rr-gold-soft: #f5e4b3;
+    --rr-gold-bright: #fbe79a;
+    --rr-text: #fdfaf0;
+    --rr-muted: rgba(253,250,240,0.72);
+    --rr-good: #5ad18a;
+    --rr-warn: #f2c14e;
+    --rr-bad: #ff7b7b;
+    --rr-own: #c98500;   /* chart: buy (validated vs #111 surface) */
+    --rr-rent: #3987e5;  /* chart: rent */
+    width: 100%;
+    box-sizing: border-box;
+    background: radial-gradient(circle at top, #181818 0%, #050505 58%);
+    padding: 56px 16px 70px;
+    color: var(--rr-text);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  #wgra-rr *, #wgra-rr *::before, #wgra-rr *::after { box-sizing: border-box; }
+
+  #wgra-rr .rr-inner { max-width: 960px; margin: 0 auto; }
+  #wgra-rr .rr-heading { text-align: center; margin-bottom: 24px; }
+
+  #wgra-rr .rr-kicker {
+    font-size: 13px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(245,228,179,0.9);
+    margin-bottom: 10px;
+  }
+
+  #wgra-rr .rr-title {
+    font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+    font-size: clamp(24px, 4vw, 34px);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+    color: var(--rr-gold-bright);
+    line-height: 1.25;
+  }
+
+  #wgra-rr .rr-sub { font-size: 17px; color: var(--rr-gold-soft); max-width: 700px; margin: 0 auto; }
+
+  #wgra-rr .rr-card {
+    background: radial-gradient(circle at top left, #262018 0%, #111111 55%, #050505 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(212,175,55,0.7);
+    box-shadow: 0 0 18px rgba(212,175,55,0.15), 0 24px 60px rgba(0,0,0,0.85);
+    padding: 26px 22px;
+  }
+
+  #wgra-rr .rr-card + .rr-card { margin-top: 18px; }
+  #wgra-rr .rr-card p { margin: 0 0 12px; }
+
+  #wgra-rr .rr-h3 {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rr-gold-bright);
+    margin: 0 0 8px;
+  }
+
+  #wgra-rr .rr-step-title {
+    font-size: clamp(20px, 3vw, 24px);
+    font-weight: 800;
+    color: #fff9e4;
+    margin: 4px 0 10px;
+    line-height: 1.3;
+    outline: none;
+  }
+
+  /* ---------- top bar ---------- */
+  #wgra-rr .rr-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  #wgra-rr .rr-pill {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(212,175,55,0.7);
+    background: rgba(5,5,5,0.9);
+    color: var(--rr-gold-soft);
+  }
+
+  #wgra-rr .rr-pill.rent { border-color: var(--rr-rent); }
+  #wgra-rr .rr-pill.buy { border-color: var(--rr-own); }
+  #wgra-rr .rr-stepcount { font-size: 14px; color: var(--rr-muted); }
+
+  #wgra-rr .rr-bar { width: 100%; height: 7px; border-radius: 999px; background: rgba(120,96,32,0.35); overflow: hidden; margin-bottom: 16px; }
+  #wgra-rr .rr-bar-fill { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #a0731a, #d4af37, #fbe79a); transition: width .25s ease; }
+
+  /* ---------- profile strip ---------- */
+  #wgra-rr .rr-profile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 14px;
+    color: var(--rr-muted);
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: rgba(5,5,5,0.6);
+    border: 1px solid rgba(245,228,179,0.18);
+    margin-bottom: 14px;
+  }
+
+  #wgra-rr .rr-profile strong { color: var(--rr-gold-soft); font-weight: 700; }
+
+  /* ---------- choices ---------- */
+  #wgra-rr .rr-choices { display: grid; gap: 10px; margin: 14px 0 6px; }
+  #wgra-rr .rr-choices.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  #wgra-rr .rr-choices.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+  @media (max-width: 720px) {
+    #wgra-rr .rr-choices.cols-3, #wgra-rr .rr-choices.cols-2 { grid-template-columns: 1fr; }
+  }
+
+  #wgra-rr .rr-choice {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1.45;
+    white-space: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--rr-text);
+    background: rgba(5,5,5,0.9);
+    border: 1px solid rgba(245,228,179,0.45);
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+
+  #wgra-rr .rr-choice:hover:not(:disabled),
+  #wgra-rr .rr-choice:focus-visible {
+    background: rgba(212,175,55,0.12);
+    border-color: var(--rr-gold-bright);
+    box-shadow: 0 0 12px rgba(212,175,55,0.35);
+    color: var(--rr-text);
+    outline: none;
+  }
+
+  #wgra-rr .rr-choice:disabled { cursor: default; }
+  #wgra-rr .rr-choice.is-locked { opacity: .5; }
+  #wgra-rr .rr-choice.is-picked { opacity: 1; border-width: 2px; }
+  #wgra-rr .rr-choice.is-good { border-color: var(--rr-good); box-shadow: 0 0 0 1px var(--rr-good); opacity: 1; }
+  #wgra-rr .rr-choice.is-bad { border-color: var(--rr-bad); box-shadow: 0 0 0 1px var(--rr-bad); }
+  #wgra-rr .rr-choice.is-off { opacity: .45; cursor: not-allowed; }
+
+  #wgra-rr .rr-choice b { color: var(--rr-gold-bright); }
+  #wgra-rr .rr-choice .rr-c-title { display: block; font-weight: 800; color: #fff9e4; margin-bottom: 2px; }
+  #wgra-rr .rr-choice .rr-c-line { display: block; font-size: 14px; color: var(--rr-muted); }
+  #wgra-rr .rr-choice .rr-c-big { display: block; font-size: 20px; font-weight: 800; color: var(--rr-gold-bright); margin: 4px 0; }
+
+  #wgra-rr .rr-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    padding: 1px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+
+  #wgra-rr .rr-tag.good { background: rgba(90,209,138,.18); color: var(--rr-good); }
+  #wgra-rr .rr-tag.warn { background: rgba(242,193,78,.18); color: var(--rr-warn); }
+  #wgra-rr .rr-tag.bad { background: rgba(255,123,123,.18); color: var(--rr-bad); }
+
+  /* checklist (lease) */
+  #wgra-rr .rr-check {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(245,228,179,0.3);
+    background: rgba(5,5,5,0.85);
+    cursor: pointer;
+  }
+
+  #wgra-rr .rr-check input { width: 22px; height: 22px; margin-top: 2px; accent-color: #d4af37; flex-shrink: 0; }
+  #wgra-rr .rr-check.is-good { border-color: var(--rr-good); }
+  #wgra-rr .rr-check.is-bad { border-color: var(--rr-bad); }
+
+  /* document-style boxes */
+  #wgra-rr .rr-doc {
+    background: #f3eddc;
+    color: #24201a;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 10px 0;
+    font-size: 15px;
+  }
+
+  #wgra-rr .rr-doc .rr-doc-head { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #6d6450; margin-bottom: 6px; }
+  #wgra-rr .rr-doc p { margin: 0 0 6px; }
+
+  #wgra-rr .rr-email { border-radius: 12px; overflow: hidden; border: 1px solid #2c2c2c; margin: 10px 0; }
+  #wgra-rr .rr-email-head { background: #161616; padding: 10px 12px; font-size: 14px; color: #cfc9b8; border-bottom: 1px solid #2c2c2c; }
+  #wgra-rr .rr-email-body { background: #0b0b0b; padding: 12px; font-size: 15px; }
+
+  /* tables / meters */
+  #wgra-rr table.rr-table { width: 100%; border-collapse: collapse; font-size: 15px; margin: 8px 0 12px; color: var(--rr-text); font-family: inherit; }
+  #wgra-rr .rr-table th, #wgra-rr .rr-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(245,228,179,0.15); }
+  #wgra-rr .rr-table th { color: var(--rr-gold-soft); font-weight: 700; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+  #wgra-rr .rr-table td.num, #wgra-rr .rr-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  #wgra-rr .rr-table tr.is-you td { color: var(--rr-gold-bright); font-weight: 700; }
+  #wgra-rr .rr-table tr.total td { font-weight: 800; color: #fff9e4; border-top: 2px solid rgba(245,228,179,0.35); }
+
+  #wgra-rr .rr-meters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+  @media (max-width: 720px) { #wgra-rr .rr-meters { grid-template-columns: 1fr; } }
+  #wgra-rr .rr-meter { border-radius: 12px; padding: 10px 12px; background: rgba(5,5,5,0.85); border: 1px solid rgba(245,228,179,0.25); }
+  #wgra-rr .rr-meter .rr-m-label { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--rr-muted); }
+  #wgra-rr .rr-meter .rr-m-value { font-size: 22px; font-weight: 800; color: #fff9e4; }
+  #wgra-rr .rr-meter .rr-m-note { font-size: 13px; color: var(--rr-muted); }
+
+  /* feedback */
+  #wgra-rr .rr-feedback { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(245,228,179,0.35); background: rgba(212,175,55,0.08); }
+  #wgra-rr .rr-feedback.good { border-color: rgba(90,209,138,.7); background: rgba(90,209,138,.08); }
+  #wgra-rr .rr-feedback.mid { border-color: rgba(242,193,78,.7); background: rgba(242,193,78,.08); }
+  #wgra-rr .rr-feedback.bad { border-color: rgba(255,123,123,.7); background: rgba(255,123,123,.08); }
+  #wgra-rr .rr-fb-head { font-weight: 800; margin-bottom: 4px; }
+  #wgra-rr .rr-feedback.good .rr-fb-head { color: var(--rr-good); }
+  #wgra-rr .rr-feedback.mid .rr-fb-head { color: var(--rr-warn); }
+  #wgra-rr .rr-feedback.bad .rr-fb-head { color: var(--rr-bad); }
+
+  #wgra-rr .rr-hint { margin: 8px 0; font-size: 15px; color: var(--rr-gold-soft); padding: 8px 12px; border-left: 3px solid var(--rr-gold); background: rgba(212,175,55,0.07); border-radius: 0 10px 10px 0; }
+
+  /* buttons */
+  #wgra-rr .rr-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+  #wgra-rr .rr-row.left { justify-content: flex-start; }
+
+  #wgra-rr .rr-btn,
+  #wgra-rr .rr-btn-ghost {
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: normal;
+    border-radius: 999px;
+    padding: 11px 22px;
+    cursor: pointer;
+  }
+
+  #wgra-rr .rr-btn {
+    color: #1b1303;
+    background: linear-gradient(120deg, #ffdf7a, #fbe79a, #d4af37);
+    border: 2px solid rgba(245,210,106,.95);
+    box-shadow: 0 6px 18px rgba(0,0,0,.6);
+  }
+
+  #wgra-rr .rr-btn:hover, #wgra-rr .rr-btn:focus { color: #1b1303; background: linear-gradient(120deg, #ffe58f, #fdeeb0, #ddb944); }
+  #wgra-rr .rr-btn:disabled { opacity: .45; cursor: default; }
+
+  #wgra-rr .rr-btn-ghost { color: var(--rr-gold-soft); background: rgba(12,12,12,.96); border: 1px solid rgba(212,175,55,.75); }
+  #wgra-rr .rr-btn-ghost:hover, #wgra-rr .rr-btn-ghost:focus { color: var(--rr-gold-bright); background: rgba(212,175,55,.12); }
+
+  #wgra-rr .rr-btn:focus-visible, #wgra-rr .rr-btn-ghost:focus-visible, #wgra-rr .rr-term:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+  /* setup */
+  #wgra-rr .rr-setup-group { margin-bottom: 18px; }
+  #wgra-rr .rr-label { display: block; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--rr-gold-soft); margin-bottom: 8px; }
+
+  /* glossary term buttons + dialog */
+  #wgra-rr .rr-term {
+    font: inherit;
+    color: var(--rr-gold-bright);
+    background: none;
+    border: none;
+    border-bottom: 1px dashed var(--rr-gold-bright);
+    padding: 0;
+    cursor: help;
+    text-transform: none;
+    letter-spacing: normal;
+    white-space: normal;
+    border-radius: 0;
+  }
+
+  #wgra-rr .rr-term:hover, #wgra-rr .rr-term:focus { background: rgba(212,175,55,.15); color: var(--rr-gold-bright); }
+  #wgra-rr .rr-doc .rr-term { color: #6b4a00; border-bottom-color: #6b4a00; }
+
+  #wgra-rr .rr-gloss-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0,0,0,.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  #wgra-rr .rr-gloss-backdrop.show { display: flex; }
+
+  #wgra-rr .rr-gloss {
+    max-width: 440px;
+    width: 100%;
+    background: #111;
+    border: 1px solid var(--rr-gold);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.8);
+  }
+
+  #wgra-rr .rr-gloss h4 { margin: 0 0 6px; color: var(--rr-gold-bright); font-size: 18px; }
+  #wgra-rr .rr-gloss p { margin: 0 0 12px; }
+
+  /* results */
+  #wgra-rr .rr-grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 18px; }
+  @media (max-width: 720px) { #wgra-rr .rr-grades { grid-template-columns: repeat(2, 1fr); } }
+  #wgra-rr .rr-grade { text-align: center; border-radius: 14px; padding: 12px 8px; background: rgba(5,5,5,.85); border: 1px solid rgba(245,228,179,.3); }
+  #wgra-rr .rr-grade .rr-g-letter { font-family: "Playfair Display", Georgia, serif; font-size: 40px; font-weight: 800; color: var(--rr-gold-bright); line-height: 1.1; }
+  #wgra-rr .rr-grade .rr-g-name { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--rr-gold-soft); }
+  #wgra-rr .rr-grade .rr-g-pts { font-size: 13px; color: var(--rr-muted); }
+
+  /* chart */
+  #wgra-rr .rr-chart-wrap { position: relative; margin: 8px 0 6px; }
+  #wgra-rr .rr-legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; color: var(--rr-text); margin-bottom: 6px; }
+  #wgra-rr .rr-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  #wgra-rr .rr-swatch { width: 18px; height: 3px; border-radius: 2px; display: inline-block; }
+  #wgra-rr svg.rr-chart { width: 100%; height: auto; display: block; touch-action: pan-y; }
+  #wgra-rr .rr-chart text { fill: rgba(253,250,240,0.72); font-size: 12px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #wgra-rr .rr-chart .rr-grid { stroke: rgba(253,250,240,0.10); stroke-width: 1; }
+  #wgra-rr .rr-chart .rr-zero { stroke: rgba(253,250,240,0.35); stroke-width: 1; }
+  #wgra-rr .rr-chart .rr-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  #wgra-rr .rr-chart .rr-cross { stroke: rgba(253,250,240,0.45); stroke-width: 1; }
+  #wgra-rr .rr-chart .rr-even { stroke: rgba(245,228,179,0.6); stroke-width: 1; stroke-dasharray: 4 4; }
+  #wgra-rr .rr-chart .rr-endlabel { fill: #fdfaf0; font-size: 13px; font-weight: 700; }
+  #wgra-rr .rr-tip {
+    position: absolute;
+    pointer-events: none;
+    background: #0b0b0b;
+    border: 1px solid rgba(245,228,179,.5);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--rr-text);
+    white-space: nowrap;
+    display: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,.6);
+  }
+
+  #wgra-rr .rr-tip .rr-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+
+  #wgra-rr .rr-card ul { margin: 0 0 12px 18px; padding: 0; }
+  #wgra-rr .rr-card li { margin-bottom: 6px; }
+  #wgra-rr .rr-card a { color: var(--rr-gold-bright); }
+  #wgra-rr .rr-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 760px) { #wgra-rr .rr-cols { grid-template-columns: 1fr; } }
+  #wgra-rr .rr-disclaimer { font-size: 13px; color: var(--rr-muted); border-top: 1px dashed rgba(212,175,55,.35); padding-top: 12px; margin-top: 6px; }
+  #wgra-rr .rr-small { font-size: 14px; color: var(--rr-muted); }
+  #wgra-rr .rr-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+  #wgra-rr .rr-bars { display: grid; gap: 12px; margin: 10px 0 8px; }
+  #wgra-rr .rr-barrow { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center; position: relative; }
+  @media (max-width: 600px) { #wgra-rr .rr-barrow { grid-template-columns: 1fr; gap: 4px; } }
+  #wgra-rr .rr-barname { font-weight: 700; color: var(--rr-text); font-size: 15px; }
+  #wgra-rr .rr-barname small { display: block; font-weight: 400; color: var(--rr-muted); font-size: 12px; }
+  #wgra-rr .rr-bartrack { position: relative; height: 34px; }
+  #wgra-rr .rr-cbar { height: 100%; border-radius: 0 6px 6px 0; background: var(--rr-own); min-width: 4px; cursor: default; }
+  #wgra-rr .rr-cbar.is-you { background: var(--rr-gold-bright); }
+  #wgra-rr .rr-barval { position: absolute; top: 50%; transform: translateY(-50%); font-weight: 800; color: var(--rr-text); font-size: 15px; white-space: nowrap; }
+  #wgra-rr .rr-na { color: var(--rr-muted); font-style: italic; font-size: 14px; line-height: 34px; }
+
+  #wgra-rr .rr-table td, #wgra-rr .rr-table th { white-space: normal; }
+  @media (max-width: 600px) { #wgra-rr .rr-table { font-size: 13px; } #wgra-rr .rr-table td, #wgra-rr .rr-table th { padding: 5px 4px; } }
+  #wgra-rr .rr-table td.num, #wgra-rr .rr-table th.num { white-space: nowrap; }
+
+
+  /* ================= ANDROID APP SHELL ================= */
+  :root { --bar-h: 56px; --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: #000;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+  /* Pure black so the logo's black background blends in (no visible box). */
+  #wgra-rr { background: #000; padding: calc(var(--bar-h) + var(--safe-top) + 14px) 12px calc(28px + var(--safe-bottom)); min-height: 100vh; }
+  #wgra-rr .rr-inner { max-width: 820px; }
+  #wgra-rr #rr-app { scroll-margin-top: calc(var(--bar-h) + var(--safe-top) + 10px); }
+  @media (max-width: 560px) { #wgra-rr .rr-card { padding: 20px 16px; border-radius: 18px; } }
+
+  .app-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 30;
+    padding-top: var(--safe-top);
+    background: #000;
+    border-bottom: 1px solid rgba(212,175,55,0.25);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .app-bar-row { height: var(--bar-h); max-width: 820px; margin: 0 auto; display: flex; align-items: center; gap: 10px; padding: 0 6px 0 12px; }
+  .app-bar-logo { width: 36px; height: 36px; border-radius: 8px; }
+  .app-bar-title { flex: 1; min-width: 0; font-size: 19px; font-weight: 800; color: #fbe79a; letter-spacing: 0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .icon-btn { width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+  .icon-btn:active { background: rgba(255,255,255,0.1); }
+  .icon-btn svg { width: 24px; height: 24px; fill: #fdfaf0; }
+
+  /* Setup hero: big logo, shown only on the setup screen */
+  .app-hero { display: none; text-align: center; margin: 4px 0 18px; }
+  #wgra-rr.is-setup .app-hero { display: block; }
+  .app-hero img { width: min(64vw, 260px); height: min(64vw, 260px); }
+  .app-hero p { margin: 10px auto 0; max-width: 560px; font-size: 16px; line-height: 1.5; color: #f5e4b3; }
+
+  /* Bottom sheets: menu, tips, help, about, privacy, credits */
+  .scrim { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    max-width: 820px; margin: 0 auto; max-height: 85vh; overflow-y: auto;
+    background: #1a1a1a; border-radius: 24px 24px 0 0; border-top: 1px solid rgba(212,175,55,0.4);
+    padding: 10px 20px calc(24px + var(--safe-bottom));
+    transform: translateY(105%); transition: transform .3s cubic-bezier(.2,.8,.2,1);
+    color: #fdfaf0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .sheet.open { transform: none; }
+  .sheet-handle { width: 36px; height: 4px; border-radius: 2px; background: #555; margin: 0 auto 14px; }
+  .sheet h3 { margin: 0 0 10px; font-size: 21px; color: #fbe79a; }
+  .sheet p, .sheet li { font-size: 15px; line-height: 1.6; color: #e8e4d6; }
+  .sheet ul { padding-left: 20px; margin: 0 0 10px; }
+  .sheet .muted { color: rgba(253,250,240,0.6); font-size: 14px; }
+  .sheet-close {
+    display: block; width: 100%; margin-top: 14px; min-height: 50px; border: 0; border-radius: 14px;
+    background: #2a2a2a; color: #fbe79a; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer;
+  }
+  .menu-item { display: flex; align-items: center; gap: 16px; width: 100%; padding: 14px 6px; border: 0; background: transparent; color: #fdfaf0; font: inherit; font-size: 16px; text-align: left; cursor: pointer; border-radius: 12px; }
+  .menu-item:active { background: rgba(255,255,255,0.06); }
+  .menu-item svg { width: 22px; height: 22px; fill: #d4af37; flex: none; }
+
+  /* Intro splash: the big logo while the app opens */
+  .app-splash { position: fixed; inset: 0; z-index: 100; background: #000; display: flex; align-items: center; justify-content: center; transition: opacity .45s ease; }
+  .app-splash img { width: min(80vw, 80vh, 520px); height: min(80vw, 80vh, 520px); animation: app-splash-in .6s ease both; }
+  .app-splash.out { opacity: 0; pointer-events: none; }
+  @keyframes app-splash-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .app-splash, .app-splash img, .sheet, .scrim { animation: none; transition: none; } }
+</style>
+</head>
+<body>
+<div id="app-splash" class="app-splash" aria-hidden="true"><img src="logo.jpg" alt=""></div>
+
+<header class="app-bar">
+  <div class="app-bar-row">
+    <img class="app-bar-logo" src="logo.jpg" alt="">
+    <div class="app-bar-title">Road to Riches</div>
+    <button type="button" class="icon-btn" data-sheet="sheet-menu" aria-label="More options"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg></button>
+  </div>
+</header>
+
+<div id="wgra-rr">
+  <div class="rr-inner">
+    <div class="app-hero">
+      <img src="logo.jpg" alt="Road to Riches: Lease It or Own It or Hoof It logo">
+      <p>Your ride is one of your biggest monthly costs. Buy a car, lease one, or go car-free — make the real decisions, dodge the traps, and see what each choice costs over 5 years.</p>
+    </div>
+    <div class="rr-card" id="rr-app" aria-live="polite"></div>
+  </div>
+
+  <div class="rr-gloss-backdrop" id="rr-gloss" role="dialog" aria-modal="true" aria-labelledby="rr-gloss-title">
+    <div class="rr-gloss">
+      <h4 id="rr-gloss-title"></h4>
+      <p id="rr-gloss-text"></p>
+      <button type="button" class="rr-btn" id="rr-gloss-close">Got it</button>
+    </div>
+  </div>
+</div>
+
+<div id="scrim" class="scrim"></div>
+
+<div id="sheet-menu" class="sheet" role="dialog" aria-modal="true" aria-label="Menu">
+  <div class="sheet-handle"></div>
+  <button type="button" class="menu-item" data-sheet="sheet-tips"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>Tips for teachers</button>
+  <button type="button" class="menu-item" data-sheet="sheet-help"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1 1 0 0 0-1.02.24l-2.2 2.2a15.07 15.07 0 0 1-6.59-6.59l2.2-2.21a.96.96 0 0 0 .25-1A11.36 11.36 0 0 1 8.5 4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1 17 17 0 0 0 17 17 1 1 0 0 0 1-1v-3.5a1 1 0 0 0-1-1z"/></svg>Free, trustworthy help</button>
+  <button type="button" class="menu-item" data-sheet="sheet-about"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>About</button>
+  <button type="button" class="menu-item" data-sheet="sheet-privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>Privacy</button>
+  <button type="button" class="menu-item" data-sheet="sheet-credits"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Credits</button>
+</div>
+
+<div id="sheet-tips" class="sheet" role="dialog" aria-modal="true" aria-label="Tips for teachers">
+  <div class="sheet-handle"></div>
+  <h3>Tips for teachers</h3>
+  <ul>
+    <li><strong>Starter</strong> (ages 14–18) shows hints and walks through the math. <strong>Real World</strong> hides hints and scores the math questions.</li>
+    <li>Play the same character in a big city and a small town, then compare the 5-year costs.</li>
+    <li>Tap any <span style="color:#fbe79a;border-bottom:1px dashed #fbe79a">underlined term</span> for a plain-English definition.</li>
+    <li>A full game with all three paths takes about 15–20 minutes.</li>
+  </ul>
+  <button type="button" class="sheet-close" data-close>Close</button>
+</div>
+
+<div id="sheet-help" class="sheet" role="dialog" aria-modal="true" aria-label="Free, trustworthy help">
+  <div class="sheet-handle"></div>
+  <h3>Free, trustworthy help</h3>
+  <ul>
+    <li><strong>Consumer Financial Protection Bureau</strong> auto loan guides: consumerfinance.gov.</li>
+    <li><strong>Federal Trade Commission</strong> car buying and leasing tips: consumer.ftc.gov.</li>
+    <li><strong>Safety recalls</strong> for any car, by VIN: nhtsa.gov/recalls.</li>
+    <li>Your local <strong>credit union</strong> can preapprove a car loan before you visit a dealer.</li>
+  </ul>
+  <button type="button" class="sheet-close" data-close>Close</button>
+</div>
+
+<div id="sheet-about" class="sheet" role="dialog" aria-modal="true" aria-label="About">
+  <div class="sheet-handle"></div>
+  <h3>About</h3>
+  <p>Road to Riches™: Lease It or Own It or Hoof It is a free transportation and wealth game from WGRALGO / The Wealth Gap Resolution Algorithm™ Inc. Buy a car, lease one, or go car-free, then see what each choice costs over 5 years.</p>
+  <p class="muted">For education only — not financial or legal advice. All numbers are examples; real prices, rates, insurance, fares, and laws vary by place and change over time.</p>
+  <p class="muted">Road to Riches v1.0.0</p>
+  <button type="button" class="sheet-close" data-close>Close</button>
+</div>
+
+<div id="sheet-privacy" class="sheet" role="dialog" aria-modal="true" aria-label="Privacy">
+  <div class="sheet-handle"></div>
+  <h3>Privacy</h3>
+  <p>This app works offline and doesn’t save anything on your device. It does not collect personal data.</p>
+  <ul>
+    <li>No ads</li>
+    <li>No account</li>
+    <li>No analytics, cookies, or trackers</li>
+    <li>No internet permission</li>
+  </ul>
+  <button type="button" class="sheet-close" data-close>Close</button>
+</div>
+
+<div id="sheet-credits" class="sheet" role="dialog" aria-modal="true" aria-label="Credits">
+  <div class="sheet-handle"></div>
+  <h3>Credits</h3>
+  <ul>
+    <li><strong>WGRALGO</strong> — Project owner, concept, direction, testing, and publishing.</li>
+    <li><strong>ChatGPT</strong> — Original web game assistance.</li>
+    <li><strong>Claude Code</strong> — Android app build, packaging, and GitHub project setup.</li>
+  </ul>
+  <p class="muted">Free and open source under the GNU General Public License v3.0. Made by WGRALGO / The Wealth Gap Resolution Algorithm™ Inc.</p>
+  <button type="button" class="sheet-close" data-close>Close</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.getElementById("wgra-rr");
+  if (!root || root.getAttribute("data-ready")) return;
+  root.setAttribute("data-ready", "1");
+  var app = document.getElementById("rr-app");
+
+  /* ===================================================================
+     DATA — example numbers for teaching
+     =================================================================== */
+  var PROFILES = {
+    jordan: { name: "Jordan", label: "Jordan, 24 — store manager", income: 48000, savings: 4500, credit: 640, debts: 150, debtNote: "student loan", oneway: 12 },
+    maya:   { name: "Maya", label: "Maya, 29 — nurse", income: 72000, savings: 14000, credit: 720, debts: 420, debtNote: "student loan", oneway: 18 },
+    duo:    { name: "Chris & Sam", label: "Chris & Sam, 33 — two incomes", income: 105000, savings: 25000, credit: 765, debts: 500, debtNote: "student loans", oneway: 15 }
+  };
+
+  var AREAS = {
+    city:   { label: "Big city", ins: 165, parking: 150, gas: 3.6, transit: { pass: 90, fare: 2.75, note: "Trains every 5–10 minutes, buses all night on main routes." } },
+    suburb: { label: "Suburb", ins: 135, parking: 0, gas: 3.4, transit: { pass: 70, fare: 2.25, note: "Buses every 30 minutes; the last bus leaves around 10 p.m." } },
+    town:   { label: "Small town", ins: 115, parking: 0, gas: 3.3, transit: null }
+  };
+
+  var CARS = [
+    { id: "new", name: "New compact car", price: 27500, mpg: 33, maint: 50, insF: 1.15, keep5: 0.55, keep3: 0.68, used: false,
+      notes: "Full factory warranty. Loses value fastest in the first few years." },
+    { id: "cpo", name: "3-year-old certified pre-owned", price: 19500, mpg: 30, maint: 80, insF: 1.0, keep5: 0.50, keep3: 0.66, used: true,
+      notes: "Inspected by the dealer, with an extended warranty from the maker." },
+    { id: "old", name: "8-year-old sedan, 110,000 miles", price: 9000, mpg: 26, maint: 150, insF: 0.85, keep5: 0.40, keep3: 0.60, used: true,
+      notes: "Cheapest to buy. Expect more repairs, and get it inspected first." }
+  ];
+
+  var TAX = 0.06, FEES = 600;
+
+  var GLOSSARY = {
+    apr: ["APR", "The yearly cost of a loan, including interest and some fees, as a percentage. A lower APR means you pay less to borrow."],
+    depreciation: ["Depreciation", "How much value a car loses over time. New cars lose value fastest in the first few years."],
+    otd: ["Out-the-door price", "The total you pay for the car: price plus sales tax, title, registration, and dealer fees, minus any trade-in. Negotiate this number, not the monthly payment."],
+    term: ["Loan term", "How many months you take to repay a loan. Longer terms lower the payment but add interest and keep you owing more than the car is worth for longer."],
+    negative: ["Negative equity (being “upside down”)", "Owing more on a car loan than the car is worth. If you sell or trade it in, you have to cover the difference."],
+    gap: ["GAP insurance", "Covers the difference between what you owe and what the car is worth if it’s totaled or stolen. Often cheaper from your insurance company than from a dealer."],
+    deductible: ["Deductible", "The part of a repair claim you pay yourself before insurance pays the rest. A higher deductible lowers your premium, so keep that amount in savings."],
+    liability: ["Liability insurance", "Pays for damage or injuries you cause to others. Every state sets a minimum, but it doesn’t fix your own car."],
+    fullcov: ["Full coverage", "A common name for liability plus collision (damage to your car in a crash) and comprehensive (theft, weather, hitting an animal). Lenders and leasing companies require it."],
+    cpo: ["Certified pre-owned (CPO)", "A used car inspected and backed by an extended warranty from the manufacturer’s program. Costs more than other used cars, less than new."],
+    preapproval: ["Loan preapproval", "A lender’s written offer of how much it will lend and at what rate before you shop. It lets you compare with dealer financing and negotiate like a cash buyer."],
+    yoyo: ["Yo-yo financing", "When a dealer lets you take the car home before financing is final, then calls back saying it “fell through” and pushes a worse deal. Rules vary by state, but you can often return the car and get your down payment back."],
+    residual: ["Residual value", "What the leasing company expects the car to be worth at the end of the lease. It’s also usually your price to buy the car at the end."],
+    moneyfactor: ["Money factor", "The interest charge on a lease, written as a small decimal. Multiply by 2,400 to compare it to an APR (0.0025 × 2,400 = 6%)."],
+    dueatsigning: ["Due at signing", "Cash you pay to start a lease — often the first payment, fees, and a down payment. Spread it over the lease to see the true monthly cost."],
+    mileage: ["Mileage allowance", "The number of miles per year a lease lets you drive. Going over costs a fee per mile when you return the car."],
+    disposition: ["Disposition fee", "A fee some leasing companies charge when you return the car at the end of the lease instead of buying it or leasing another."],
+    commuter: ["Commuter benefits", "An employer program that lets you pay for transit or vanpools with money taken out before taxes, which lowers your tax bill."],
+    tco: ["Total cost of ownership", "Everything a car costs: payments, interest, insurance, gas, maintenance, repairs, parking, and lost value — not just the monthly payment."]
+  };
+
+  /* ===================================================================
+     HELPERS
+     =================================================================== */
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function money(n) { var neg = n < 0; n = Math.round(Math.abs(n)); return (neg ? "−$" : "$") + n.toLocaleString("en-US"); }
+  function pct(x) { return Math.round(x * 100) + "%"; }
+  function term(key, text) { return '<button type="button" class="rr-term" data-term="' + key + '">' + esc(text || GLOSSARY[key][0]) + "</button>"; }
+  function shuffle(a) { var b = a.slice(); for (var i = b.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = b[i]; b[i] = b[j]; b[j] = t; } return b; }
+  function payment(loan, apr, months) { var r = apr / 100 / 12; return r === 0 ? loan / months : loan * r / (1 - Math.pow(1 + r, -months)); }
+  function balanceAfter(loan, apr, months, k) {
+    if (k >= months) return 0;
+    var r = apr / 100 / 12, p = payment(loan, apr, months);
+    return loan * Math.pow(1 + r, k) - p * (Math.pow(1 + r, k) - 1) / r;
+  }
+  function uniq4(right, others, stepBy) {
+    var seen = {}, out = [];
+    [right].concat(others).forEach(function (v) { v = Math.round(v); if (v > 0 && !seen[v]) { seen[v] = 1; out.push(v); } });
+    var k = 1; while (out.length < 4) { var x = Math.round(right + stepBy * k++); if (!seen[x]) { seen[x] = 1; out.push(x); } }
+    return shuffle(out.slice(0, 4));
+  }
+
+  function takeHome() { return S.income * 0.77 / 12; }
+  function carBudget() { return takeHome() * 0.15; }
+  function annualMiles() { return S.oneway * 2 * 250 + 3500; }
+  function carRate(used) {
+    var c = S.credit;
+    var r = c >= 760 ? [5.9, 7.4] : c >= 700 ? [7.0, 9.0] : c >= 660 ? [9.5, 12.5] : c >= 620 ? [12.0, 15.5] : [15.0, 19.0];
+    return used ? r[1] : r[0];
+  }
+  function moneyFactor() { var c = S.credit; return c >= 760 ? 0.0024 : c >= 700 ? 0.0029 : c >= 660 ? 0.0038 : c >= 620 ? 0.0048 : 0.006; }
+
+  /* Monthly cost of owning a car with a loan of `months`. */
+  function carCost(car, months) {
+    var a = AREAS[S.area];
+    var otd = car.price * (1 + TAX) + FEES;
+    var down = Math.round(Math.min(car.price * 0.10, Math.max(0, S.savings - 1500)) / 100) * 100;
+    var loan = otd - down;
+    var apr = carRate(car.used);
+    var pay = payment(loan, apr, months);
+    var ins = a.ins * car.insF;
+    var gas = annualMiles() / 12 / car.mpg * a.gas;
+    var total = pay + ins + gas + car.maint + a.parking;
+    return { car: car, otd: otd, down: down, loan: loan, apr: apr, months: months, pay: pay, ins: ins, gas: gas, maint: car.maint, parking: a.parking, total: total,
+             interest: pay * months - loan };
+  }
+
+  /* A typical lease on the new compact car. */
+  function leaseCost(allowance) {
+    var a = AREAS[S.area], car = CARS[0];
+    var cap = car.price + 695 - 2000, resid = Math.round(car.price * 0.58);
+    var base = (cap - resid) / 36 + (cap + resid) * moneyFactor();
+    var extra = allowance === 15000 ? 35 : allowance === 12000 ? 15 : 0;
+    var pay = (base + extra) * (1 + TAX);
+    var ins = a.ins * car.insF;
+    var gas = annualMiles() / 12 / car.mpg * a.gas;
+    var over = Math.max(0, annualMiles() - (allowance || 12000)) * 0.25 / 12;
+    return { pay: pay, signing: 2999, ins: ins, gas: gas, maint: 30, parking: a.parking, over: over, resid: resid,
+             total: pay + 2999 / 36 + ins + gas + 30 + a.parking + over };
+  }
+
+  /* ===================================================================
+     STATE
+     =================================================================== */
+  var setup = { level: "starter", profile: "maya", area: "city", path: "all" };
+  var S = null;
+
+  function newGame() {
+    var p = PROFILES[setup.profile];
+    S = {
+      level: setup.level, area: setup.area, path: setup.path,
+      name: p.name, income: p.income, savings: p.savings, credit: p.credit, debts: p.debts, debtNote: p.debtNote, oneway: p.oneway,
+      car: null, months: null, allowance: null, lastMile: null, occasional: null,
+      scores: { budget: [0, 0], contract: [0, 0], scam: [0, 0], wealth: [0, 0] },
+      missed: []
+    };
+    S.steps = [];
+    if (S.path === "buy" || S.path === "all") S.steps = S.steps.concat(BUY_STEPS);
+    if (S.path === "lease" || S.path === "all") S.steps = S.steps.concat(LEASE_STEPS);
+    if ((S.path === "ride" || S.path === "all") && AREAS[S.area].transit) S.steps = S.steps.concat(RIDE_STEPS);
+    S.steps.forEach(function (st) { st._done = false; });
+    S.idx = 0;
+  }
+
+  function record(cat, pts, max, missedText) {
+    S.scores[cat][0] += pts; S.scores[cat][1] += max;
+    if (pts < max && missedText) S.missed.push(missedText);
+  }
+
+  function hint(text) { return (S && S.level === "starter") ? '<div class="rr-hint">💡 ' + text + "</div>" : ""; }
+  function fb(level, head, text, cat, pts, max, missed) { return { level: level, head: head, text: text, cat: cat, pts: pts, max: max, missed: missed }; }
+  function bigOpts(vals, fmt) { return vals.map(function (v) { return { value: v, html: '<span class="rr-c-big">' + (fmt ? fmt(v) : money(v)) + "</span>" }; }); }
+
+  /* ===================================================================
+     BUY STEPS
+     =================================================================== */
+  var BUY_STEPS = [
+    { path: "buy", title: "Set your car budget",
+      render: function () {
+        var body = "<p>A common guideline: keep <b>all</b> car costs — payment, insurance, gas, maintenance, and parking — under about <b>15% of take-home pay</b>. " +
+          esc(S.name) + " takes home about <b>" + money(takeHome()) + "</b> a month after taxes.</p>";
+        if (S.level === "starter") body += '<div class="rr-hint"><b>Worked example:</b> ' + money(takeHome()) + " × 0.15 = <b>" + money(carBudget()) + " a month</b> for everything car-related — not just the loan payment.</div>";
+        else body += "<p><b>What’s the most " + esc(S.name) + " should spend on all car costs each month?</b></p>";
+        return body;
+      },
+      info: function () { return S.level === "starter"; },
+      choices: function () {
+        var right = carBudget();
+        this._right = Math.round(right);
+        return bigOpts(uniq4(right, [S.income / 12 * 0.15, takeHome() * 0.30, takeHome() * 0.08], 90));
+      },
+      cols: 2,
+      answer: function (v) {
+        if (v === this._right) return fb("good", "Right — about " + money(this._right) + " a month.", "That covers the payment <i>and</i> insurance, gas, maintenance, and parking. Many buyers budget only for the payment and come up short.", "budget", 2, 2);
+        return fb("bad", "It’s about " + money(this._right) + ".", "Take-home pay (" + money(takeHome()) + ") × 15%. Use take-home pay, and remember it covers every car cost, not just the loan.", "budget", 0, 2,
+          "Keep all car costs under about 15% of take-home pay.");
+      }
+    },
+
+    { path: "buy", title: "New, nearly new, or older?",
+      render: function () {
+        return "<p>Monthly totals below include a 60-month loan with about 10% down, insurance, gas for " + Math.round(annualMiles()).toLocaleString("en-US") +
+          " miles a year, maintenance" + (AREAS[S.area].parking ? ", and " + money(AREAS[S.area].parking) + " parking" : "") + ". Your budget: <b>" + money(carBudget()) + "</b>.</p>" +
+          hint("New cars lose value fastest — that’s called " + term("depreciation", "depreciation") + ". A " + term("cpo", "certified pre-owned") + " car skips the biggest drop.");
+      },
+      choices: function () {
+        return CARS.map(function (car) {
+          var c = carCost(car, 60);
+          return { value: car.id, html: '<span class="rr-c-title">' + esc(car.name) + '</span><span class="rr-c-big">' + money(car.price) + "</span>" +
+            '<span class="rr-c-line">About <b>' + money(c.total) + "/mo</b> all-in (" + pct(c.total / takeHome()) + " of take-home) · loan " + c.apr.toFixed(1) + "% APR</span>" +
+            '<span class="rr-c-line">' + esc(car.notes) + "</span>" };
+        });
+      },
+      cols: 3,
+      answer: function (id) {
+        var car = CARS.filter(function (c) { return c.id === id; })[0];
+        S.car = car;
+        var c = carCost(car, 60), share = c.total / takeHome();
+        var line = "About " + money(c.total) + " a month all-in — " + pct(share) + " of take-home pay.";
+        var cheapest = CARS.every(function (x) { return carCost(x, 60).total >= c.total; });
+        if (share <= 0.15) return fb("good", "Fits the budget.", line + (car.id === "new" ? " New cars lose about 45% of their value in 5 years, so plan to keep it a long time." : " Letting someone else take the first years of depreciation saves a lot."), "budget", 2, 2);
+        if (cheapest) return fb("mid", "The most affordable option here.", line + " Even this is over 15%. A smaller loan, cheaper insurance, or going car-free part of the week would help.", "budget", 2, 2);
+        if (share <= 0.20) return fb("mid", "A stretch.", line + " A less expensive car would free up money for savings every month.", "budget", 1, 2, "Compare the full monthly cost of each car, not just the price.");
+        return fb("bad", "Too much car for this budget.", line + " That leaves little room for savings or surprises.", "budget", 0, 2, "Compare the full monthly cost of each car, not just the price.");
+      }
+    },
+
+    { path: "buy", title: "Where should you get your car loan?",
+      render: function () { return "<p>You’ve picked the car. Before you go to the dealer, how will you handle financing?</p>" + hint("Walk in with a rate you already have, and the dealer has to beat it."); },
+      choices: function () {
+        return [
+          { value: "cu", html: '<span class="rr-c-title">Get preapproved first</span><span class="rr-c-line">Ask your bank or credit union for a loan offer, then see if the dealer can beat it.</span>' },
+          { value: "dealer", html: '<span class="rr-c-title">Let the dealer handle it</span><span class="rr-c-line">Tell them the monthly payment you want and let them find a loan.</span>' },
+          { value: "bhph", html: '<span class="rr-c-title">“Buy here, pay here” lot</span><span class="rr-c-line">The lot is the lender. No credit check, weekly payments at the lot.</span>' }
+        ];
+      },
+      cols: 3,
+      answer: function (v) {
+        if (v === "cu") return fb("good", "Smart shopping.", "A " + term("preapproval", "preapproval") + " shows you a real rate and loan amount. The dealer may beat it — and if not, you already have financing.", "contract", 2, 2);
+        if (v === "dealer") return fb("bad", "That can cost you.", "When you shop by monthly payment, a dealer can stretch the loan or raise the rate to hit your number. Compare offers and negotiate the price, not the payment.", "contract", 0, 2,
+          "Get preapproved before visiting a dealer, and negotiate the price, not the payment.");
+        return fb("bad", "Usually the most expensive way to borrow.", "“Buy here, pay here” lots often charge very high rates and may install tracking devices to repossess quickly. Try a credit union first, even with fair credit.", "contract", 0, 2,
+          "Get preapproved before visiting a dealer, and negotiate the price, not the payment.");
+      }
+    },
+
+    { path: "buy", title: "Choose your loan length",
+      render: function () {
+        return "<p>Car: <b>" + esc(S.car.name) + "</b>. Your budget for all car costs: <b>" + money(carBudget()) + "</b>/month.</p>" +
+          hint("A longer " + term("term", "loan term") + " lowers the payment but adds interest — and you may owe more than the car is worth for years.");
+      },
+      choices: function () {
+        var self = this; self._c = {};
+        return [36, 48, 60, 72, 84].map(function (m) {
+          var c = carCost(S.car, m); self._c[m] = c;
+          return { value: m, html: '<span class="rr-c-title">' + m + " months</span>" + '<span class="rr-c-big">' + money(c.pay) + "/mo</span>" +
+            '<span class="rr-c-line">Total interest ' + money(c.interest) + " · all-in " + money(c.total) + "/mo</span>" };
+        });
+      },
+      cols: 3,
+      answer: function (m) {
+        S.months = m;
+        var c = this._c[m], fits = c.total <= carBudget() * 1.0001;
+        var line = money(c.pay) + "/month, " + money(c.interest) + " in interest over the loan.";
+        if (m <= 60 && fits) return fb("good", "Good balance.", line + " A loan of 60 months or less keeps interest down and helps you build equity faster.", "wealth", 2, 2);
+        if (m <= 60) return fb("mid", "Short loan, but over budget.", line + " The term is smart, but the total cost is above your budget — a cheaper car would fit better.", "wealth", 1, 2, "If only a long loan makes the payment fit, the car costs too much.");
+        if (m === 72) return fb("mid", "Lower payment, higher cost.", line + " Six-year loans add interest and keep you " + term("negative", "upside down") + " longer.", "wealth", 1, 2, "If only a long loan makes the payment fit, the car costs too much.");
+        return fb("bad", "A seven-year trap.", line + " With an 84-month loan you’ll likely owe more than the car is worth for years, which makes it hard to sell or trade.", "wealth", 0, 2, "If only a long loan makes the payment fit, the car costs too much.");
+      }
+    },
+
+    { path: "buy", title: "What’s the out-the-door price?",
+      render: function () {
+        return '<div class="rr-doc"><div class="rr-doc-head">Dealer worksheet — ' + esc(S.car.name) + "</div>" +
+          "<p>Vehicle price: " + money(S.car.price) + "</p><p>Sales tax: 6% of the price</p><p>Documentation fee: $399</p><p>Title and registration: $201</p></div>" +
+          hint("Add the tax and every fee to the price. This is the " + term("otd", "out-the-door price") + " — the number to negotiate.");
+      },
+      choices: function () {
+        var p = S.car.price, right = p * 1.06 + 600;
+        this._right = Math.round(right);
+        return bigOpts(uniq4(right, [p + 600, p * 1.06, p * 1.06 + 399], 750));
+      },
+      cols: 2,
+      answer: function (v) {
+        if (v === this._right) return fb("good", "Exactly — " + money(this._right) + ".", "Always ask for the out-the-door price in writing. It stops surprise fees from showing up at signing.", "contract", 2, 2);
+        return fb("bad", "It’s " + money(this._right) + ".", "Price + 6% tax (" + money(S.car.price * 0.06) + ") + $399 doc fee + $201 title and registration. Ask for this total in writing before you sign.", "contract", 0, 2,
+          "Negotiate the out-the-door price, including tax and every fee.");
+      }
+    },
+
+    { path: "buy", title: "Before you sign",
+      render: function () {
+        if (S.car.id === "new") return "<p>The finance manager says: <em>“This 7-year extended warranty is $2,400, and the price is only good today.”</em> Your new car already has a 3-year factory warranty.</p>";
+        return '<div class="rr-doc"><div class="rr-doc-head">Independent mechanic inspection — ' + esc(S.car.name) + "</div><p>Brakes and two tires are worn and should be replaced soon: about <b>$900</b>.</p><p>No open safety recalls (checked at nhtsa.gov/recalls).</p></div>";
+      },
+      choices: function () {
+        if (S.car.id === "new") return [
+          { value: "later", html: "Say no for now. You can usually buy an extended warranty later, and compare prices from other sellers." },
+          { value: "buy", html: "Add it to the loan so the car is covered for 7 years." },
+          { value: "today", html: "Buy it today so you don’t miss the special price." }
+        ];
+        return [
+          { value: "neg", html: "Ask the seller to fix it or lower the price by about $900." },
+          { value: "ignore", html: "Buy at the listed price and fix it later." },
+          { value: "skip", html: "Skip the inspection report — the car drove fine on the test drive." }
+        ];
+      },
+      answer: function (v) {
+        if (S.car.id === "new") {
+          if (v === "later") return fb("good", "No pressure purchases.", "“Today only” is a sales tactic. Extended warranties can be bought later, and adding one to the loan means paying interest on it for years.", "contract", 2, 2);
+          return fb("bad", "Pricey add-on.", "Rolling a $2,400 warranty into the loan adds interest, and the car is already covered by the factory warranty. Take time to compare.", "contract", 0, 2,
+            "Skip pressure add-ons; you can usually buy coverage later.");
+        }
+        if (v === "neg") return fb("good", "That’s what inspections are for.", "The seller agrees to knock $700 off. A $100–$200 inspection by your own mechanic is one of the best deals in car buying.", "contract", 2, 2);
+        return fb("bad", "You left money on the table.", "An independent inspection gives you proof to negotiate. Without it, those repairs come out of your pocket.", "contract", 0, 2,
+          "Get used cars inspected by your own mechanic and use the results to negotiate.");
+      }
+    },
+
+    { path: "buy", title: "A week later, the dealer calls",
+      render: function () {
+        return "<p>You signed, paid your down payment, and drove the car home. Now the dealer says: <em>“Your financing fell through. Come sign a new contract at a rate 4 points higher, or we’ll keep your down payment.”</em></p>" +
+          hint("This has a name: " + term("yoyo", "yo-yo financing") + ".");
+      },
+      choices: function () {
+        return [
+          { value: "refuse", html: "Refuse the new deal. Ask in writing to return the car and get your down payment back, and check your state’s rules or contact the attorney general." },
+          { value: "sign", html: "Sign the new contract — you already love the car." },
+          { value: "ignore", html: "Stop answering their calls and keep driving the car." }
+        ];
+      },
+      answer: function (v) {
+        if (v === "refuse") return fb("good", "You didn’t get yo-yoed.", "Many states require dealers to return your down payment and trade-in if the original financing isn’t approved. Next time, don’t drive off until the loan is final — or bring your own preapproval.", "scam", 2, 2);
+        if (v === "sign") return fb("bad", "That’s how the scheme works.", "Dealers count on buyers being attached to the car. Signing at a much higher rate can cost thousands. You usually have the right to undo the deal instead.", "scam", 0, 2,
+          "If a dealer says financing “fell through,” you can usually return the car and get your down payment back.");
+        return fb("bad", "That can backfire.", "Ignoring them can lead to repossession. Respond in writing and know your rights.", "scam", 0, 2,
+          "If a dealer says financing “fell through,” you can usually return the car and get your down payment back.");
+      }
+    },
+
+    { path: "buy", title: "Choose your car insurance",
+      render: function () {
+        var ins = AREAS[S.area].ins * S.car.insF;
+        return "<p>You have a car loan, so the lender requires " + term("fullcov", "full coverage") + ". Quotes for " + esc(S.car.name.toLowerCase()) + ":</p>" +
+          hint("A higher " + term("deductible", "deductible") + " lowers your monthly cost — but only if you have that much saved.");
+      },
+      choices: function () {
+        var ins = AREAS[S.area].ins * S.car.insF;
+        return [
+          { value: "min", html: '<span class="rr-c-title">State minimum ' + "liability only</span><span class=\"rr-c-big\">" + money(ins * 0.45) + '/mo</span><span class="rr-c-line">Cheapest. Doesn’t cover damage to your own car.</span>' },
+          { value: "500", html: '<span class="rr-c-title">Full coverage, $500 deductible</span><span class="rr-c-big">' + money(ins) + '/mo</span><span class="rr-c-line">You pay the first $500 of a claim.</span>' },
+          { value: "1000", html: '<span class="rr-c-title">Full coverage, $1,000 deductible</span><span class="rr-c-big">' + money(ins * 0.88) + '/mo</span><span class="rr-c-line">You pay the first $1,000 of a claim.</span>' }
+        ];
+      },
+      cols: 3,
+      answer: function (v) {
+        var saved = S.savings - carCost(S.car, 60).down;
+        if (v === "min") return fb("bad", "Not allowed with a loan.", "Your lender requires " + term("fullcov", "full coverage") + ". Liability-only covers the other driver, not you — and dropping coverage can break your loan contract.", "contract", 0, 2,
+          "With a car loan or lease, you need full coverage; choose a deductible you can pay from savings.");
+        if (v === "1000" && saved < 1000) return fb("mid", "Cheaper, but risky right now.", "With only " + money(Math.max(0, saved)) + " in savings after the down payment, a $1,000 deductible could be hard to pay. Build savings first.", "contract", 1, 2,
+          "Choose a deductible you can pay from savings.");
+        return fb("good", "Solid choice.", "Full coverage protects your car and the loan. Keep your deductible amount in your emergency fund.", "contract", 2, 2);
+      }
+    },
+
+    { path: "buy", title: "Year 3: time for a bigger car?",
+      render: function () {
+        var c = carCost(S.car, S.months);
+        var owe = balanceAfter(c.loan, c.apr, S.months, 36);
+        var worth = S.car.price * S.car.keep3;
+        this._eq = worth - owe;
+        return "<p>You want a bigger car. The dealer offers <b>" + money(worth) + "</b> for your trade-in. You still owe <b>" + money(owe) + "</b>.</p>" +
+          (this._eq < 0 ? "<p>The dealer says: <em>“No problem — we’ll roll the " + money(-this._eq) + " difference into your new loan.”</em></p>" : "<p>You have about " + money(this._eq) + " in equity.</p>") +
+          hint(this._eq < 0 ? "Owing more than the car is worth is called " + term("negative", "negative equity") + "." : "Equity is what the car is worth minus what you owe.");
+      },
+      choices: function () {
+        return [
+          { value: "keep", html: "Keep driving this car, pay off the loan, and save for the next one." },
+          { value: "roll", html: this._eq < 0 ? "Trade in and roll the balance into the new loan." : "Trade in now and use the equity toward a bigger, more expensive car." }
+        ];
+      },
+      cols: 2,
+      answer: function (v) {
+        if (v === "keep") return fb("good", "The wealth-building move.", "The cheapest car is usually the one you already own. Once it’s paid off, put the old payment into savings — that’s how a car stops costing you and starts helping you.", "wealth", 2, 2);
+        if (this._eq < 0) return fb("bad", "Debt on top of debt.", "Rolling " + money(-this._eq) + " of negative equity into a new loan means paying for a car you no longer own — and starting the new loan even more upside down.", "wealth", 0, 2,
+          "Never roll negative equity into a new car loan.");
+        return fb("mid", "Possible, but costly.", "Using equity is better than rolling debt, but a bigger car means a bigger payment and more depreciation. Keeping a paid-off car longer builds the most wealth.", "wealth", 1, 2,
+          "Driving a paid-off car longer is one of the easiest ways to build wealth.");
+      }
+    }
+  ];
+
+  /* ===================================================================
+     LEASE STEPS
+     =================================================================== */
+  var LEASE_STEPS = [
+    { path: "lease", title: "What are you really paying for in a lease?",
+      render: function () { return "<p>A lease is like a long-term rental of a new car, usually for 3 years.</p>" + hint("At the end, you give the car back — so you’re paying for the part of its value you use up."); },
+      choices: function () {
+        return shuffle([
+          { value: "right", html: "The car’s expected loss in value during the lease, plus a finance charge, fees, and tax." },
+          { value: "full", html: "The car’s full price, spread out over the three years of the lease." },
+          { value: "own", html: "Part of the car’s price, which you’ll own outright at the end of the lease." }
+        ]);
+      },
+      answer: function (v) {
+        if (v === "right") return fb("good", "Exactly.", "You pay for the drop from the price to the " + term("residual", "residual value") + ", plus a finance charge set by the " + term("moneyfactor", "money factor") + ". That’s why leases have lower payments — and why you own nothing at the end.", "contract", 2, 2);
+        return fb("bad", "Not quite.", "You pay for the value the car loses during the lease (price minus " + term("residual", "residual value") + "), plus a finance charge and fees. At the end you own nothing unless you buy the car.", "contract", 0, 2,
+          "Lease payments cover depreciation plus a finance charge — you own nothing at the end.");
+      }
+    },
+
+    { path: "lease", title: "How many miles do you need?",
+      render: function () {
+        return "<p>" + esc(S.name) + " drives " + S.oneway + " miles each way to work, about 250 days a year, plus about 3,500 miles for errands and trips.</p>" +
+          hint("Miles a year = " + S.oneway + " × 2 × 250 + 3,500 = <b>" + annualMiles().toLocaleString("en-US") + "</b>. Going over the " + term("mileage", "mileage allowance") + " costs 25¢ a mile.");
+      },
+      choices: function () {
+        var self = this; self._c = {};
+        return [10000, 12000, 15000].map(function (al) {
+          var c = leaseCost(al); self._c[al] = c;
+          var over = Math.max(0, annualMiles() - al) * 3;
+          return { value: al, html: '<span class="rr-c-title">' + al.toLocaleString("en-US") + " miles/year</span><span class=\"rr-c-big\">" + money(c.pay) + "/mo</span>" +
+            '<span class="rr-c-line">' + (over ? "Expected overage after 3 years: " + over.toLocaleString("en-US") + " miles = " + money(over * 0.25) : "Covers your expected driving") + "</span>" };
+        });
+      },
+      cols: 3,
+      answer: function (al) {
+        S.allowance = al;
+        var need = annualMiles(), fit = [10000, 12000, 15000].filter(function (x) { return x >= need; })[0] || 15000;
+        if (al === fit) return fb("good", "Right-sized.", "The smallest plan that covers your driving. Paying for miles upfront is cheaper than paying 25¢ a mile at turn-in.", "budget", 2, 2);
+        if (al < need) { var fee = (need - al) * 3 * 0.25; return fb("bad", "Surprise bill ahead.", "You’d drive about " + ((need - al) * 3).toLocaleString("en-US") + " extra miles over 3 years — " + money(fee) + " due when you return the car.", "budget", 0, 2, "Estimate your yearly miles before choosing a lease mileage plan."); }
+        return fb("mid", "More than you need.", "You’re paying for miles you won’t use. The " + fit.toLocaleString("en-US") + "-mile plan would cost less each month.", "budget", 1, 2, "Estimate your yearly miles before choosing a lease mileage plan.");
+      }
+    },
+
+    { path: "lease", title: "The ad says $299 a month. What’s the real cost?",
+      render: function () {
+        var body = '<div class="rr-doc"><div class="rr-doc-head">Advertisement</div><p><b>LEASE A NEW COMPACT FOR $299/MO!</b></p><p class="rr-small" style="color:#4a4436">36 months. $3,999 due at signing. 10,000 miles per year. Tax, title, and fees extra.</p></div>';
+        if (S.level === "starter") body += '<div class="rr-hint"><b>Worked example:</b> $3,999 ÷ 36 months = $111 a month. Add it to $299 and the real cost is about <b>$410 a month</b> — before tax and fees.</div>';
+        else body += "<p><b>Counting the money " + term("dueatsigning", "due at signing") + ", what’s the real monthly cost?</b></p>";
+        return body;
+      },
+      info: function () { return S.level === "starter"; },
+      choices: function () { this._right = Math.round(299 + 3999 / 36); return bigOpts(uniq4(this._right, [299, 299 + 3999 / 12, 3999 / 36], 35)); },
+      cols: 2,
+      answer: function (v) {
+        if (v === this._right) return fb("good", "Right — about " + money(this._right) + "/month.", "Big “due at signing” amounts make lease ads look cheaper. Always spread the upfront cash over the lease to compare.", "contract", 2, 2);
+        return fb("bad", "It’s about " + money(this._right) + "/month.", "$3,999 ÷ 36 = $111, plus the $299 payment. And tax, title, and fees are still extra.", "contract", 0, 2,
+          "Spread the money due at signing over the lease to find the true monthly cost.");
+      }
+    },
+
+    { path: "lease", title: "18 months in, you want out of your lease",
+      render: function () { return "<p>A new job means a longer commute, and you’d rather have a different car. You still have 18 months left on the lease.</p>" + hint("Ending a lease early can cost almost all of the remaining payments."); },
+      choices: function () {
+        return [
+          { value: "transfer", html: "Ask the leasing company about a lease transfer to someone else, or about buying the car and selling it, and compare the costs." },
+          { value: "terminate", html: "Return the car to the dealer early and pay whatever early-termination fee they charge." },
+          { value: "stop", html: "Stop making payments and let them come pick up the car." }
+        ];
+      },
+      answer: function (v) {
+        if (v === "transfer") return fb("good", "The cheapest way out.", "Many leasing companies allow transfers, and buying out a car worth more than the payoff can even put money in your pocket. Get the numbers in writing first.", "contract", 2, 2);
+        if (v === "terminate") return fb("mid", "Expensive exit.", "Early-termination charges often equal most of the remaining payments. Check transfer and buyout options first.", "contract", 1, 2, "Before ending a lease early, compare transfer and buyout options.");
+        return fb("bad", "That’s a repossession.", "Walking away damages your credit for years, and you can still owe the remaining balance plus fees.", "contract", 0, 2, "Before ending a lease early, compare transfer and buyout options.");
+      }
+    },
+
+    { path: "lease", title: "Your lease is ending",
+      render: function () {
+        var resid = leaseCost(12000).resid;
+        return "<p>Your buyout price (the " + term("residual", "residual value") + ") is <b>" + money(resid) + "</b>. Similar used cars sell for about <b>" + money(resid * 1.1) +
+          "</b>. The car is in great shape, and you’d like to keep driving it for 5+ years.</p>" + hint("Compare the buyout price with what similar cars sell for.");
+      },
+      choices: function () {
+        return [
+          { value: "buy", html: "Buy the car at the residual price, with cash or a credit-union loan, and keep driving it." },
+          { value: "again", html: "Turn it in and lease another new car — you’ll always have a payment, but always a new car." },
+          { value: "return", html: "Turn it in, pay the " + "disposition fee, and then shop for a different used car." }
+        ];
+      },
+      answer: function (v) {
+        if (v === "buy") return fb("good", "Good value.", "You’re buying below market price a car whose history you know. Driving it for years after the payments end is how leasing can still work out.", "wealth", 2, 2);
+        if (v === "again") return fb("mid", "Convenient, but a forever payment.", "Leasing back-to-back means a car payment for life. It can make sense for some people, but it rarely builds wealth.", "wealth", 1, 2,
+          "Leasing back-to-back means a car payment forever; compare the buyout with market prices.");
+        return fb("mid", "You might overpay.", "Paying a " + term("disposition", "disposition fee") + " and then buying a similar car for more than your buyout price usually costs extra.", "wealth", 1, 2,
+          "Compare your lease buyout price with market prices before turning the car in.");
+      }
+    }
+  ];
+
+  /* ===================================================================
+     CAR-FREE STEPS
+     =================================================================== */
+  var RIDE_STEPS = [
+    { path: "ride", title: "Monthly pass or pay per ride?",
+      render: function () {
+        var t = AREAS[S.area].transit;
+        var body = "<p>" + esc(t.note) + " A single ride costs <b>$" + t.fare.toFixed(2) + "</b>; a monthly pass is <b>" + money(t.pass) + "</b>. " + esc(S.name) +
+          " takes about <b>52 rides</b> a month (44 for work plus weekends).</p>";
+        if (S.level === "starter") body += '<div class="rr-hint"><b>Worked example:</b> 52 × $' + t.fare.toFixed(2) + " = <b>" + money(52 * t.fare) + "</b> paying per ride, vs. " + money(t.pass) + " for the pass. The pass saves " + money(52 * t.fare - t.pass) + " a month.</div>";
+        else body += "<p><b>How much would 52 rides cost without a pass?</b></p>";
+        return body;
+      },
+      info: function () { return S.level === "starter"; },
+      infoButton: "Get the monthly pass",
+      choices: function () { var t = AREAS[S.area].transit; this._right = Math.round(52 * t.fare); return bigOpts(uniq4(this._right, [44 * t.fare, t.pass, 30 * t.fare], 18)); },
+      cols: 2,
+      answer: function (v) {
+        var t = AREAS[S.area].transit;
+        if (v === this._right) return fb("good", "Right — " + money(this._right) + ".", "So the " + money(t.pass) + " pass saves " + money(this._right - t.pass) + " a month. Ask whether your employer or school offers a discounted pass, too.", "budget", 2, 2);
+        return fb("bad", "It’s " + money(this._right) + ".", "52 rides × $" + t.fare.toFixed(2) + ". The pass saves " + money(this._right - t.pass) + " a month.", "budget", 0, 2, "Compare a monthly pass with pay-per-ride using your real number of trips.");
+      }
+    },
+
+    { path: "ride", title: "The last mile",
+      render: function () { return "<p>The station is 1.2 miles from work. How will you cover the last stretch each day?</p>" + hint("Small daily costs add up: multiply by about 44 trips a month."); },
+      choices: function () {
+        return [
+          { value: "bike", html: '<span class="rr-c-title">Walk or bike</span><span class="rr-c-big">~$10/mo</span><span class="rr-c-line">About 20 minutes walking, 7 biking. Bike upkeep and a good lock.</span>' },
+          { value: "scooter", html: '<span class="rr-c-title">Shared e-scooter</span><span class="rr-c-big">~$5 a trip</span><span class="rr-c-line">Fast, but about $220 a month.</span>' },
+          { value: "rideshare", html: '<span class="rr-c-title">Rideshare every day</span><span class="rr-c-big">~$9 a trip</span><span class="rr-c-line">Comfortable, but about $400 a month.</span>' }
+        ];
+      },
+      cols: 3,
+      answer: function (v) {
+        S.lastMile = v === "bike" ? 10 : v === "scooter" ? 220 : 400;
+        if (v === "bike") return fb("good", "Cheap and healthy.", "Walking or biking turns your commute into free exercise. Keep a rideshare budget for bad-weather days.", "budget", 2, 2);
+        return fb(v === "scooter" ? "mid" : "bad", "That adds up fast.", "At " + money(S.lastMile) + " a month, the last mile can cost more than the transit pass — and wipe out the savings of going car-free.", "budget", v === "scooter" ? 1 : 0, 2,
+          "Small daily costs add up — multiply by every trip in a month.");
+      }
+    },
+
+    { path: "ride", title: "Grocery runs, visits, and weekend trips",
+      render: function () { return "<p>Without a car, how will you handle big shopping trips and visiting family an hour away?</p>"; },
+      choices: function () {
+        return [
+          { value: "share", html: '<span class="rr-c-title">Car-share or rental when needed</span><span class="rr-c-line">About $120 a month for a few trips, plus delivery for heavy groceries.</span>' },
+          { value: "buy", html: '<span class="rr-c-title">Buy a car anyway, “just in case”</span><span class="rr-c-line">A car loan, insurance, and parking for a car that sits most days.</span>' },
+          { value: "ride", html: '<span class="rr-c-title">Rideshare for every trip</span><span class="rr-c-line">About $350 a month at your usual pace.</span>' }
+        ];
+      },
+      cols: 3,
+      answer: function (v) {
+        S.occasional = v === "share" ? 120 : v === "ride" ? 350 : 120;
+        if (v === "share") return fb("good", "Pay only when you drive.", "Renting a car for occasional trips costs far less than owning one that sits parked. That’s the core of the car-free money advantage.", "wealth", 2, 2);
+        if (v === "buy") return fb("bad", "That defeats the purpose.", "A car that’s mostly parked still costs a payment, insurance, and parking every month. Rent or share for occasional trips.", "wealth", 0, 2, "Use car-share or rentals for occasional trips instead of owning a mostly-parked car.");
+        return fb("mid", "Works, but pricey.", "Rideshare for every trip adds up. Car-sharing or a rental for longer trips usually costs less.", "wealth", 1, 2, "Use car-share or rentals for occasional trips instead of owning a mostly-parked car.");
+      }
+    },
+
+    { path: "ride", title: "Your job offers commuter benefits",
+      render: function () { return "<p>HR says you can sign up for " + term("commuter", "commuter benefits") + " for your transit pass. What does that do?</p>"; },
+      choices: function () {
+        return shuffle([
+          { value: "right", html: "Pays for your pass with money taken out before taxes, which lowers your tax bill." },
+          { value: "free", html: "Gives you a free transit pass that your employer pays for in full." },
+          { value: "park", html: "Covers parking at work, but not buses or trains." }
+        ]);
+      },
+      answer: function (v) {
+        if (v === "right") return fb("good", "Exactly.", "Paying with pre-tax money (up to a monthly limit set by the IRS) can save you 20–30% on your commute, depending on your tax bracket. Some employers add money on top.", "wealth", 2, 2);
+        return fb("bad", "Not quite.", "Commuter benefits let you pay for transit with pre-tax money, which lowers your taxes. Some employers also chip in, but that varies.", "wealth", 0, 2, "Commuter benefits let you pay for transit with pre-tax money.");
+      }
+    },
+
+    { path: "ride", title: "Your schedule changes to late shifts",
+      render: function () { return "<p>Your new shift ends at 11:30 p.m., after service gets much less frequent. Late shifts pay $3 more an hour.</p>"; },
+      choices: function () {
+        return [
+          { value: "plan", html: "Find a coworker to carpool with or check for a vanpool, and keep a small rideshare budget for late nights." },
+          { value: "car", html: "Buy a car right away on an 84-month loan so the payment is low." },
+          { value: "skip", html: "Turn down the late shifts, even though they pay more." }
+        ];
+      },
+      answer: function (v) {
+        if (v === "plan") return fb("good", "Flexible and safe.", "A carpool, vanpool, or occasional rideshare covers the hard trips while keeping most of the car-free savings — and you keep the higher pay.", "budget", 2, 2);
+        if (v === "car") return fb("bad", "Rushed and expensive.", "A long loan bought in a hurry costs thousands extra. Solve the late-night trip first; if you still need a car later, shop carefully.", "budget", 0, 2, "Solve hard trips with carpools or a backup budget before rushing into a car loan.");
+        return fb("mid", "Safe, but you lose income.", "$3 more an hour adds up to thousands a year. A carpool or backup ride budget usually costs far less than that.", "budget", 1, 2, "Solve hard trips with carpools or a backup budget before rushing into a car loan.");
+      }
+    }
+  ];
+
+  /* ===================================================================
+     UI
+     =================================================================== */
+  function profileStrip() {
+    return '<div class="rr-profile"><span><strong>' + esc(S.name) + "</strong></span><span>Take-home " + money(takeHome()) + "/mo</span>" +
+      "<span>Savings " + money(S.savings) + "</span><span>Credit " + S.credit + "</span><span>Commute " + S.oneway + " mi each way</span><span>" + esc(AREAS[S.area].label) + "</span></div>";
+  }
+
+  function focusTitle() {
+    var t = app.querySelector(".rr-step-title");
+    if (t) { t.setAttribute("tabindex", "-1"); t.focus({ preventScroll: true }); }
+    var r = app.getBoundingClientRect();
+    if (r.top < 0 || r.top > window.innerHeight * 0.6) app.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function seg(group, items) {
+    return '<div class="rr-choices cols-' + items.length + '" role="group" data-group="' + group + '">' +
+      items.map(function (it) {
+        var on = setup[group] === it[0];
+        return '<button type="button" class="rr-choice' + (on ? " is-good" : "") + '" data-set="' + group + '" data-v="' + it[0] + '" aria-pressed="' + on + '">' +
+          '<span class="rr-c-title">' + it[1] + '</span><span class="rr-c-line">' + it[2] + "</span></button>";
+      }).join("") + "</div>";
+  }
+
+  function renderSetup() {
+    root.classList.add("is-setup");
+    var noTransit = !AREAS[setup.area].transit;
+    app.innerHTML =
+      '<h3 class="rr-step-title">Set up your game</h3>' +
+      '<div class="rr-setup-group"><span class="rr-label">Level</span>' +
+      seg("level", [["starter", "Starter", "Ages 14–18 · hints and worked math"], ["real", "Real World", "Adults · no hints, math is scored"]]) + "</div>" +
+      '<div class="rr-setup-group"><span class="rr-label">Choose a character</span>' +
+      seg("profile", Object.keys(PROFILES).map(function (k) {
+        var p = PROFILES[k];
+        return [k, esc(p.label), money(p.income) + "/yr · " + money(p.savings) + " saved · credit " + p.credit + " · " + p.oneway + "-mile commute"];
+      })) + "</div>" +
+      '<div class="rr-setup-group"><span class="rr-label">Where do they live?</span>' +
+      seg("area", [["city", "Big city", "Great transit · pricey parking and insurance"], ["suburb", "Suburb", "Some buses · most people drive"], ["town", "Small town", "No public transit · cheaper insurance"]]) + "</div>" +
+      '<div class="rr-setup-group"><span class="rr-label">Path</span>' +
+      seg("path", [["buy", "Buy a car", "9 decisions"], ["lease", "Lease a car", "5 decisions"], ["ride", "Go car-free", noTransit ? "Not available in a small town" : "5 decisions"], ["all", "All three", noTransit ? "Buy + lease (no transit here)" : "Compare everything · about 20 minutes"]]) + "</div>" +
+      '<div class="rr-error" id="rr-error" role="alert" style="color:#ff7b7b;font-weight:700;min-height:1.4em"></div>' +
+      '<div class="rr-row"><button type="button" class="rr-btn" data-act="start">Start</button></div>';
+  }
+
+  function renderStep() {
+    root.classList.remove("is-setup");
+    var step = S.steps[S.idx], total = S.steps.length;
+    var isInfo = step.info && step.info();
+    var label = step.path === "buy" ? "Buying" : step.path === "lease" ? "Leasing" : "Car-free";
+    var html =
+      '<div class="rr-top"><span class="rr-pill ' + (step.path === "ride" ? "rent" : "buy") + '">' + label + "</span>" +
+      '<span class="rr-stepcount">Step ' + (S.idx + 1) + " of " + total + "</span></div>" +
+      '<div class="rr-bar"><div class="rr-bar-fill" style="width:' + (S.idx / total * 100) + '%"></div></div>' +
+      profileStrip() + '<h3 class="rr-step-title">' + esc(step.title) + "</h3>" + step.render.call(step);
+    if (isInfo) {
+      html += '<div class="rr-row"><button type="button" class="rr-btn" data-act="info">' + esc(step.infoButton || "Got it") + "</button></div>";
+    } else {
+      var ch = step.choices.call(step);
+      step._shown = ch;
+      html += '<div class="rr-choices' + (step.cols ? " cols-" + step.cols : "") + '">' + ch.map(function (c, i) {
+        return '<button type="button" class="rr-choice" data-act="pick" data-i="' + i + '">' + c.html + "</button>";
+      }).join("") + "</div>";
+    }
+    html += '<div id="rr-fb"></div><div class="rr-row left"><button type="button" class="rr-btn-ghost" data-act="setup">Start over</button></div>';
+    app.innerHTML = html;
+    focusTitle();
+  }
+
+  function showFeedback(f) {
+    record(f.cat, f.pts, f.max, f.missed);
+    var last = S.idx === S.steps.length - 1;
+    document.getElementById("rr-fb").innerHTML =
+      '<div class="rr-feedback ' + f.level + '"><div class="rr-fb-head">' + (f.level === "good" ? "✓ " : f.level === "mid" ? "◐ " : "✗ ") + f.head + "</div><div>" + f.text + "</div></div>" +
+      '<div class="rr-row"><button type="button" class="rr-btn" data-act="next">' + (last ? "See my results" : "Next") + "</button></div>";
+    var nb = app.querySelector('[data-act="next"]');
+    if (nb) nb.focus({ preventScroll: true });
+    var el = document.getElementById("rr-fb"), r = el.getBoundingClientRect();
+    if (r.bottom > window.innerHeight) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function pick(i) {
+    var step = S.steps[S.idx], c = step._shown[i];
+    if (!c || step._done) return;
+    step._done = true;
+    var f = step.answer.call(step, c.value);
+    Array.prototype.forEach.call(app.querySelectorAll('[data-act="pick"]'), function (b, j) {
+      b.disabled = true;
+      b.classList.add(j === i ? "is-picked" : "is-locked");
+      if (j === i) b.classList.add(f.level === "bad" ? "is-bad" : "is-good");
+    });
+    showFeedback(f);
+  }
+
+  function next() {
+    S.steps[S.idx]._done = false;
+    if (S.idx < S.steps.length - 1) { S.idx++; renderStep(); } else renderResults();
+  }
+
+  /* ===================================================================
+     RESULTS — 5-year cost of each option
+     =================================================================== */
+  function fiveYear() {
+    var a = AREAS[S.area];
+    var car = S.car || CARS[1], months = S.months || 60;
+    var c = carCost(car, months);
+    var paid = c.pay * Math.min(months, 60);
+    var owe5 = balanceAfter(c.loan, c.apr, months, 60);
+    var worth5 = car.price * car.keep5;
+    var buy = c.down + paid + (c.ins + c.gas + c.maint + c.parking) * 60 - (worth5 - owe5);
+    var buyParts = { "Down payment + loan payments": c.down + paid, "Insurance": c.ins * 60, "Gas": c.gas * 60, "Maintenance & repairs": c.maint * 60,
+                     "Parking": c.parking * 60, "Minus what the car is worth (after any loan payoff)": -(worth5 - owe5) };
+    var l = leaseCost(S.allowance || 12000);
+    var lease = l.signing * 2 + l.pay * 60 + (l.ins + l.gas + l.maint + l.parking + l.over) * 60;
+    var leaseParts = { "Due at signing (two leases)": l.signing * 2, "Lease payments": l.pay * 60, "Insurance": l.ins * 60, "Gas": l.gas * 60,
+                       "Maintenance & repairs": l.maint * 60, "Parking": l.parking * 60, "Extra-mile fees": l.over * 60 };
+    var ride = null, rideParts = null;
+    if (a.transit) {
+      var lm = S.lastMile == null ? 10 : S.lastMile, oc = S.occasional == null ? 120 : S.occasional;
+      ride = (a.transit.pass + lm + oc) * 60;
+      rideParts = { "Transit pass": a.transit.pass * 60, "Last mile": lm * 60, "Car-share, rentals & rides": oc * 60 };
+    }
+    return { buy: buy, lease: lease, ride: ride, buyParts: buyParts, leaseParts: leaseParts, rideParts: rideParts, car: car, months: months };
+  }
+
+  function grade(p) { return p >= 0.9 ? "A" : p >= 0.8 ? "B" : p >= 0.7 ? "C" : p >= 0.6 ? "D" : "F"; }
+
+  function renderResults() {
+    root.classList.remove("is-setup");
+    var r = fiveYear();
+    var cats = [["budget", "Budget"], ["contract", "Deal Smarts"], ["scam", "Scam Defense"], ["wealth", "Long-Term Wealth"]];
+    var tot = 0, max = 0;
+    var grades = cats.map(function (c) {
+      var s = S.scores[c[0]]; tot += s[0]; max += s[1];
+      return '<div class="rr-grade"><div class="rr-g-letter">' + (s[1] ? grade(s[0] / s[1]) : "—") + '</div><div class="rr-g-name">' + c[1] +
+        '</div><div class="rr-g-pts">' + (s[1] ? s[0] + " / " + s[1] + " pts" : "not played") + "</div></div>";
+    }).join("");
+
+    var rows = [
+      { key: "buy", name: "Buy", sub: r.car.name + ", " + r.months + "-month loan", v: r.buy, parts: r.buyParts },
+      { key: "lease", name: "Lease", sub: "New compact, two 3-year leases", v: r.lease, parts: r.leaseParts },
+      { key: "ride", name: "Car-free", sub: AREAS[S.area].transit ? "Transit pass + last mile + occasional car" : "No public transit here", v: r.ride, parts: r.rideParts }
+    ];
+    var maxV = Math.max.apply(null, rows.filter(function (x) { return x.v != null; }).map(function (x) { return x.v; }));
+    var played = S.path === "all" ? null : S.path;
+    var bars = rows.map(function (x, i) {
+      var track = x.v == null ? '<div class="rr-na">Not available in a small town</div>' :
+        '<div class="rr-bartrack"><div class="rr-cbar' + (played === x.key ? " is-you" : "") + '" data-i="' + i + '" style="width:' + Math.max(1, x.v / maxV * 62) + '%"></div>' +
+        '<span class="rr-barval" style="left:calc(' + Math.max(1, x.v / maxV * 62) + '% + 8px)">' + money(x.v) + "</span></div>";
+      return '<div class="rr-barrow"><div class="rr-barname">' + x.name + (played === x.key ? " (your path)" : "") + "<small>" + esc(x.sub) + "</small></div>" + track + "</div>";
+    }).join("");
+
+    var avail = rows.filter(function (x) { return x.v != null; }).sort(function (a, b) { return a.v - b.v; });
+    var gap = avail[avail.length - 1].v - avail[0].v;
+    var monthly = gap / 60, fv = 0;
+    for (var m = 0; m < 60; m++) fv = fv * (1 + 0.05 / 12) + monthly;
+    fv = fv * Math.pow(1 + 0.05, 10);
+
+    var detail = '<div style="overflow-x:auto"><table class="rr-table"><tr><th>What’s included</th>' + rows.map(function (x) { return '<th class="num">' + x.name + "</th>"; }).join("") + "</tr>";
+    var keys = [];
+    rows.forEach(function (x) { if (x.parts) Object.keys(x.parts).forEach(function (k) { if (keys.indexOf(k) === -1) keys.push(k); }); });
+    keys.forEach(function (k) {
+      detail += "<tr><td>" + esc(k) + "</td>" + rows.map(function (x) { return '<td class="num">' + (x.parts && x.parts[k] != null && Math.round(x.parts[k]) !== 0 ? money(x.parts[k]) : "—") + "</td>"; }).join("") + "</tr>";
+    });
+    detail += '<tr class="total"><td>5-year total</td>' + rows.map(function (x) { return '<td class="num">' + (x.v == null ? "—" : money(x.v)) + "</td>"; }).join("") + "</tr></table></div>";
+
+    var lessons = S.missed.length ? '<div class="rr-h3" style="margin-top:18px">Lessons to remember</div><ul>' + S.missed.map(function (m) { return "<li>" + esc(m) + "</li>"; }).join("") + "</ul>" : "";
+
+    app.innerHTML =
+      '<h3 class="rr-step-title">Your Road to Riches report — ' + esc(S.name) + "</h3>" +
+      "<p>You scored <b>" + tot + " of " + max + "</b> points.</p>" +
+      '<div class="rr-grades">' + grades + "</div>" +
+      '<div class="rr-h3">5-year cost of each option — ' + esc(AREAS[S.area].label.toLowerCase()) + "</div>" +
+      '<div class="rr-bars" role="img" aria-label="Five-year cost by option">' + bars + "</div>" +
+      "<p>This is the " + term("tco", "total cost of ownership") + ": everything you pay, minus what the car is still worth. <b>" + avail[0].name + "</b> costs the least here. Choosing it over <b>" + avail[avail.length - 1].name.toLowerCase() + "</b> frees about <b>" + money(gap) + "</b> over 5 years — " +
+      "invest that as you go at 5% a year and leave it for 10 more years, and it could grow to about <b>" + money(fv) + "</b>.</p>" +
+      detail +
+      '<p class="rr-small">Assumptions: 6% sales tax and $600 in fees; car values after 5 years from typical depreciation; gas at ' + "$" + AREAS[S.area].gas.toFixed(2) +
+      " a gallon; insurance, maintenance, fares, and parking stay flat. Leasing assumes a second lease after 3 years. Example numbers only — your costs will differ.</p>" +
+      lessons +
+      '<div class="rr-row left"><button type="button" class="rr-btn" data-act="again">Play again</button><button type="button" class="rr-btn-ghost" data-act="setup">Change character or area</button></div>';
+
+    // Hover/tap a bar for its breakdown
+    Array.prototype.forEach.call(app.querySelectorAll(".rr-cbar"), function (bar) {
+      var x = rows[+bar.getAttribute("data-i")];
+      bar.setAttribute("title", Object.keys(x.parts).map(function (k) { return k + ": " + money(x.parts[k]); }).join("\n"));
+    });
+    focusTitle();
+  }
+
+  /* ===================================================================
+     EVENTS
+     =================================================================== */
+  var gloss = document.getElementById("rr-gloss"), lastFocus = null;
+  function openGloss(key) {
+    var g = GLOSSARY[key]; if (!g) return;
+    lastFocus = document.activeElement;
+    document.getElementById("rr-gloss-title").textContent = g[0];
+    document.getElementById("rr-gloss-text").textContent = g[1];
+    gloss.classList.add("show");
+    document.getElementById("rr-gloss-close").focus({ preventScroll: true });
+  }
+  function closeGloss() { gloss.classList.remove("show"); if (lastFocus) lastFocus.focus({ preventScroll: true }); }
+  document.getElementById("rr-gloss-close").addEventListener("click", closeGloss);
+  gloss.addEventListener("click", function (e) { if (e.target === gloss) closeGloss(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && gloss.classList.contains("show")) closeGloss(); });
+
+  root.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-term]");
+    if (t) { e.preventDefault(); e.stopPropagation(); openGloss(t.getAttribute("data-term")); return; }
+    var b = e.target.closest("[data-act],[data-set]");
+    if (!b || !app.contains(b)) return;
+    if (b.hasAttribute("data-set")) {
+      setup[b.getAttribute("data-set")] = b.getAttribute("data-v");
+      renderSetup();
+      var again = app.querySelector('[data-set="' + b.getAttribute("data-set") + '"][data-v="' + b.getAttribute("data-v") + '"]');
+      if (again) again.focus({ preventScroll: true });
+      return;
+    }
+    var act = b.getAttribute("data-act");
+    if (act === "start" || act === "again") {
+      if (setup.path === "ride" && !AREAS[setup.area].transit) {
+        var err = document.getElementById("rr-error");
+        if (err) err.textContent = "There’s no public transit in this small town. Pick Buy, Lease, or All three — or choose a city or suburb.";
+        return;
+      }
+      newGame(); renderStep();
+    }
+    else if (act === "setup") { renderSetup(); focusTitle(); }
+    else if (act === "pick") pick(+b.getAttribute("data-i"));
+    else if (act === "next") next();
+    else if (act === "info") next();
+  });
+
+  window.rrCloseGloss = function () {
+    if (!gloss.classList.contains("show")) return false;
+    closeGloss();
+    return true;
+  };
+
+  renderSetup();
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  // Intro splash
+  var splash = document.getElementById("app-splash");
+  setTimeout(function () {
+    splash.classList.add("out");
+    setTimeout(function () { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 500);
+  }, 1300);
+
+  // Sheets
+  var scrim = document.getElementById("scrim");
+  function openSheetEl() { return document.querySelector(".sheet.open"); }
+  function closeSheets() {
+    Array.prototype.forEach.call(document.querySelectorAll(".sheet.open"), function (s) { s.classList.remove("open"); });
+    scrim.classList.remove("open");
+  }
+  function openSheet(id) {
+    closeSheets();
+    var s = document.getElementById(id);
+    if (!s) return;
+    s.classList.add("open");
+    scrim.classList.add("open");
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("[data-sheet],[data-close]") : null;
+    if (t && t.hasAttribute("data-sheet")) { openSheet(t.getAttribute("data-sheet")); return; }
+    if (t && t.hasAttribute("data-close")) { closeSheets(); return; }
+    if (e.target === scrim) closeSheets();
+  });
+
+  // Android back button (called by MainActivity). Returns true when handled;
+  // false lets the app ask before exiting.
+  window.onAndroidBack = function () {
+    if (window.rrCloseGloss && window.rrCloseGloss()) return true;
+    if (openSheetEl()) { closeSheets(); return true; }
+    return false;
+  };
+})();
+</script>
+</body>
+</html>
