@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- No action bar (the app draws its own app bar). The window background is the logo on
+         black, so launch shows the logo and there is never a white flash
+         before the WebView paints. -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_window</item>
+        <item name="android:statusBarColor">@color/launch_bg</item>
+        <item name="android:navigationBarColor">@color/launch_bg</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentTransitions">false</item>
+    </style>
+</resources>

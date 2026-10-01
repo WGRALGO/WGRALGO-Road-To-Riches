@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+
+// Optional release signing. Keystore + passwords are NEVER committed.
+// Provide a keystore.properties at the project root, or set env vars:
+//   RTR_KEYSTORE_FILE / RTR_KEYSTORE_PASSWORD / RTR_KEY_ALIAS / RTR_KEY_PASSWORD
+def keystorePropsFile = rootProject.file("keystore.properties")
+def keystoreProps = new Properties()
+def hasReleaseSigning = false
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+    hasReleaseSigning = true
+} else if (System.getenv("RTR_KEYSTORE_FILE")) {
+    keystoreProps.setProperty("storeFile", System.getenv("RTR_KEYSTORE_FILE"))
+    keystoreProps.setProperty("storePassword", System.getenv("RTR_KEYSTORE_PASSWORD") ?: "")
+    keystoreProps.setProperty("keyAlias", System.getenv("RTR_KEY_ALIAS") ?: "")
+    keystoreProps.setProperty("keyPassword", System.getenv("RTR_KEY_PASSWORD") ?: "")
+    hasReleaseSigning = true
+}
+
+android {
+    namespace "com.wgra.roadtoriches"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.wgra.roadtoriches"
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            debuggable false
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+    }
+}
+
+// No runtime dependencies — WebView ships with the Android framework.
+dependencies { }
