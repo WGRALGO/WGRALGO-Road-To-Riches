@@ -14,4 +14,4 @@ Road to Riches works fully offline.
 The game is a single page bundled inside the app. Links to outside websites are
 never opened from inside the app.
 
-Contact: wealthgapresolutionalgorithm@gmail.com
+Contact: info@thewealthgapresolutionalgorithm.org
